@@ -116,4 +116,50 @@ public class LinqQueries
         return booksCollection.Where(p => p.PageCount >= 0 && p.PageCount <= 500).Sum(p => p.PageCount);
 
     }
+
+    public string BooksAfter2015Concated()
+    {
+        return booksCollection
+            .Where(p => p.PublishedDate.Year > 2015)
+            .Aggregate("", (Titles, next) =>
+            {
+                if (Titles != string.Empty)
+                    Titles += " - " + next.Title;
+                else
+                    Titles += next.Title;
+
+                return Titles;
+            });
+    }
+
+    public double AverageTitle()
+    {
+        return booksCollection.Average(p => p.Title.Length);
+    }
+
+    public double AverageTitleMoreThanZero()
+    {
+        return booksCollection
+            .Where(p => p.Title.Length > 0)
+            .Average(p => p.Title.Length);
+    }
+
+    public IEnumerable<IGrouping<int, Book>> BooksGroupByYearAfter2000()
+    {
+        return booksCollection.Where(p => p.PublishedDate.Year >= 2000).GroupBy(p => p.PublishedDate.Year);
+    }
+
+    public ILookup<char, Book> BooksLookupGroupFirstLetter()
+    {
+        return booksCollection.ToLookup(p => p.Title[0], p => p);
+
+    }
+
+    public IEnumerable<Book> BooksMoreThan500PagesAfter2005()
+    {
+        var booksAfter2005 = booksCollection.Where(p => p.PublishedDate.Year > 2005);
+        var booksMoreThan500 = booksCollection.Where(p => p.PageCount > 500);
+
+        return booksAfter2005.Join(booksMoreThan500, p => p.Title, x => x.Title, (p, x) => p);
+    }
 }
